@@ -1,0 +1,193 @@
+
+
+
+NOTE : Do not create your own IAM Roles and policies for this project , You just go with "create new Role" option while doing this process
+
+
+
+Replicate Existing Objects in your Amazon S3 Buckets with Amazon S3 Batch replication
+
+
+Mian Aim is how to replicate objects already existing in your buckets within the same AWS Region or across different AWS Regions with Amazon Simple Storage Service (Amazon S3) Batch Replication.
+
+
+Amazon S3 Replication is an elastic, fully managed, low-cost feature that replicates objects between Amazon S3 buckets. You can replicate new and existing data from one source bucket to multiple destination buckets in the same or different AWS Regions. Whether you want to maintain a secondary copy of your data for data protection or have data in multiple geographies to provide users with the lowest latency, S3 Replication gives you the controls you need to meet your business needs.
+
+
+You can use Amazon S3 Batch Replication to backfill a newly created bucket with existing objects, re-replicate objects that have replicated already or were previously unable to replicate, migrate data across accounts, or add new buckets to your data lake. S3 Batch Replication jobs are created on top of an existing replication configuration and run for all replication rules that are enabled for the bucket. For more information on S3 Replication, visit the Replicating objects section in the Amazon S3 User Guide, and for a step-by-step tutorial on setting up S3 Replication visit Replicate data within and between AWS Regions using Amazon S3 Replication. By the end of this tutorial, you will be able to replicate existing data within and between AWS Regions using Amazon S3 Replication.
+
+
+Data lakes : Data lakes on AWS help you break down data silos to maximize end-to-end data insights. With Amazon Simple Storage Service (Amazon S3) as your data lake foundation, you can tap into AWS analytics services to support data your needs from data ingestion, movement, and storage to big data analytics, streaming analytics, business intelligence, machine learning (ML), and more – all with the best price performance. More than 700,000 data lakes run on AWS.
+
+Amazon S3 is the best place to build data lakes because of its unmatched durability, availability, scalability, security, compliance, and audit capabilities. With AWS Lake Formation, you can build secure data lakes in days instead of months. AWS Glue then allows seamless data movement between data lakes and your purpose-built data and analytics services.
+
+Amazon Glue : 
+
+AWS Glue is a serverless data integration service that makes it easy for analytics users to discover, prepare, move, and integrate data from multiple sources. You can use it for analytics, machine learning, and application development.
+
+
+Configure S3 Replication on your Amazon S3 bucket :
+
+-- Create two S3 buckets
+
+-- Create an S3 Replication rule on your S3 bucket
+
+-- Choose a destination S3 bucket
+
+-- Choose or create IAM roles for replication
+
+-- Specify the encryption type (optional)
+
+-- Choose the destination S3 storage class
+
+-- Enable additional replication options (optional)
+
+
+Configure S3 Batch Replication for existing objects in your Amazon S3 bucket in the following ways:
+
+-- Create an S3 Batch Replication job when you create a new replication configuration on your bucket or when you add a new destination to your existing replication configuration
+
+-- Create an S3 Batch Replication job from the S3 Batch Operations home page (recommended)
+
+-- Create an S3 Batch Replication job from existing replication configuration page
+
+
+Implementation :
+
+Step 1: Create two Amazon S3 buckets
+
+-- Log in to the AWS Management Console using your account information. In the search bar, enter S3, then select S3 from the results.
+
+-- In the left navigation pane on the S3 console, choose Buckets, and then choose Create bucket.
+
+-- Enter a descriptive, globally unique name for your source bucket. Select the AWS Region you want your bucket created in. 
+
+-- Enable Bucket Versioning. Bucket versioning is required for both source and destination S3 buckets for S3 Replication. 
+
+-- You can leave the remaining options as defaults. Navigate to the bottom of the page and choose Create bucket.
+
+-- Repeat the preceding steps to create another S3 bucket to serve as the destination bucket. This new bucket can exist in the same AWS Region as the source bucket for S3 Same-Region Replication (S3 SRR) or in a different AWS Region for S3 Cross-Region Replication (S3 CRR). Make sure to enable Bucket Versioning for the destination S3 bucket and name your new bucket something unique.
+
+
+Step 2: Create an S3 Replication Configuration on your S3 bucket
+
+-- From your list of S3 buckets, choose your source S3 bucket. The console takes you to the S3 bucket landing page.
+
+-- On the S3 bucket landing page, you can review the Objects, Properties, Permissions, Metrics, Management, and Access Points for the selected S3 bucket.
+
+-- On the Management tab, under Replication rules, select Create replication rule.
+
+-- Enter a Replication rule name and make sure Enabled is selected under the Status section. If the replication rule is disabled, it will not run.
+
+NOTE: Amazon S3 attempts to replicate objects according to all replication rules. However, if there are two or more rules with the same destination bucket, then objects are replicated according to the rule with the highest priority. The lower the number, the higher the priority. You can edit the priority of each replication rule on the replication configuration page.  
+
+-- Narrow the scope of replication by defining a Filter type (Prefix or Tags), or choose to replicate the entire bucket. For example, if you want to only replicate objects that include the prefix Finance, specify that scope. For more information on filtering objects for replication
+
+--  choose  rule scope      Limit the scope of this rule using one or more filters
+
+-- Limit the scope of this rule using one or more filters
+
+-- You can't create a new S3 bucket during the replication setup process.
+
+-- Encryption is optional
+
+-- Destination storage class is optional 
+
+-- Choose any additional replication options you need:
+
+-- Replication Time Control (RTC): S3 RTC helps you meet compliance and business requirements because it provides an SLA of 15 minutes to replicate 99.99% of your objects. You can enable S3 RTC along with S3 CRR and S3 SRR. Replication metrics and notifications are enabled by default.
+
+-- Replication metrics and notifications: For non-RTC rules, you have the option to select Replication metrics and notifications, which provides detailed metrics to track minute-by-minute progress of bytes pending, operations pending, operations failed, and replication latency for the replication rule.
+
+-- Delete marker replication: Selecting Delete marker replication means deletes on the source bucket will be replicated to the destination bucket. This should be enabled if you want to keep the source and destination buckets in sync, but not if the goal is to protect against accidental or malicious deletes.
+
+-- Replica modifications sync: To establish two-way replication between two S3 buckets, create bidirectional replication rules (A to B, and B to A) and enable Replica modification sync for the replication rules in both the source and destination S3 buckets. This will help you to keep object metadata such as tags, ACLs, and Object Lock settings in sync between replicas and source objects.
+
+NOTE : S3 RTC, Replication metrics and notifications, and Replica modification sync are not supported while replicating existing objects with S3 Batch Replication.
+
+-- When you have configured the replication, choose Save.  
+
+-- When you create the first rule in a new replication configuration for your S3 bucket or add a new destination AWS Region to an existing configuration, you have the option to enable existing object replication for that replication rule. To replicate existing objects, choose, Yes, replicate existing objects, and then choose Submit.
+
+-- The console takes you to the Create Batch Operations job page.
+
+
+
+Step 3: Replicate existing objects while creating a new replication configuration
+
+
+-- On the Create Batch Operations job page, you can review S3 Batch Operations Job settings such as job run options, scope of S3 completion reports, and permissions.
+
+-- Set Job run options. If you want the S3 Batch Replication job to run immediately, you can choose Automatically run the job when it’s ready. If you want to wait to run the job when it’s ready, you can save the Batch Operations manifest to review the list of objects to be replicated.
+
+-- As long as S3 Batch Operations successfully processes at least one object, Amazon S3 generates a completion report after the batch replication job completes, fails, or is cancelled. The completion report contains additional information for each task, including the object key name and version, status, error codes, and descriptions of any errors. We recommend choosing Generate completion report for All tasks so that you can review the status of all objects replicating with this job. For examples of completion reports, 
+
+-- Make sure that the IAM role associated with this Batch Replication job has sufficient permissions to perform S3 Batch Operations on your behalf. For more information, see the documentation on configuring IAM policies for Batch Replication and granting permissions for Amazon S3 Batch Operations.
+
+-- Review the configuration, and select Save.
+
+-- You are redirected to the Batch Operations home page.
+
+-- Select the Job ID of your new job to review the job configuration. You can also track the status of the Batch Replication job.
+
+
+Step 4: Replicate existing objects with existing replication configuration
+
+-- Apart from creating a Replication job for a new replication rule as described in the previous step, you can also create S3 Batch Replication jobs for existing replication rules in S3 buckets. To do this, return to the Amazon S3 console home page.
+
+-- On the left navigation pane of the console home page, choose Batch Operations, and then choose Create job.
+
+-- On the Create job page, select the AWS Region where you want to create your Batch Replication job. You must create the job in the same AWS Region in which the source S3 bucket is located.
+
+-- Provide the list of objects to replicate. You can add a user-generated manifest in the form of an Amazon S3 inventory report or a CSV file. The manifest needs to have all of the object versions that need to be replicated. Amazon S3 can also generate a manifest for you using the existing S3 Replication configuration on the source bucket.
+
+-- NOTE: In this example, we chose Create manifest using S3 Replication configuration to let Amazon S3 generate a manifest on our behalf and chose “aws-s3-replication-tutorial-source-bucket” as the source bucket. If you choose to let Amazon S3 generate a manifest for you, you will also see additional filters such as object creation date and replication status to reduce the scope of the job.
+
+-- If you chose Create manifest using S3 Replication Configuration on the previous page, the only Operation option is Replicate. This is because replication is the only operation that is permitted while using an S3 generated manifest. Select Replicate, and then choose Next.
+
+-- Enter a Description to best define the purpose of the job.
+
+-- Select a Priority to indicate the relative priority of this job to others running in your account. A higher number indicates higher priority. For example, a job with Priority 2 will be prioritized over a job with priority 1. S3 Batch Operations prioritizes jobs according to priority numbers, but strict ordering isn't guaranteed. Therefore, you shouldn't use job priorities to ensure that any one job starts or finishes before any other job. If you need to ensure strict ordering, wait until one job has finished before starting the next.
+
+-- Choose whether you want to generate a completion report. 
+
+-- Choose a valid Batch Operations IAM role to grant Amazon S3 permissions to perform actions on your behalf.
+
+-- You must also attach a Batch Replication IAM policy to the Batch Operations IAM role. To create a valid IAM role and policy see, configuring IAM policies for Batch Replication.
+
+-- Add Job tags to your Batch Replication job, and then choose Next to review your job configuration.
+
+-- On the Review page, choose Edit to make changes, then choose Next to save your changes and return to the Review page.
+
+-- When your job is ready, choose Create job.  
+
+-- After the Batch Replication job is created, Batch Operations processes the manifest. If successful, it will change the job status to Awaiting your confirmation to run. You must confirm the details of the job before it can run.
+
+-- When the job is successful, a banner displays at the top of the Batch Operations page.
+
+
+Step 5: Create Batch Replication job from S3 Replication configuration page
+
+-- From your list of S3 buckets, choose the S3 bucket that you want to configure as your source for replication.
+
+-- The console takes you to the S3 bucket landing page.
+
+-- Review the Objects, Properties, Permissions, Metrics, Management, and Access Points for the selected S3 bucket.
+
+-- On the Management tab, under Replication rules, select View replication configuration.
+
+-- On the replication configuration home page for your source bucket, choose Create replication job to go to the Create job page for S3 Batch Operations. Repeat the previous steps to create a Batch Replication job from the existing replication configuration.
+
+
+Step 6: Monitor the progress of an S3 Batch Replication job
+
+-- After a Batch Replication job is created and run, it progresses through a series of statuses. You can track the progress of a Batch Replication job by referring to these statuses on the Batch Operations home page.
+
+For example, a job is in the New state when it is created, moves to the Preparing state when Amazon S3 is processing the manifest and other job parameters, then moves to the Ready state when it is ready to run, Active when it is in progress, and finally Complete when the processing completes. For a full list of job statuses, see Batch Operations job statuses.
+
+-- You can choose to generate a Completion report when you create your Batch Replication job to track the status of object replication. The Completion report is a CSV file that is generated by Amazon S3 after a job completes, fails, or is cancelled as long as at least one task has been successfully invoked with S3 Batch Operations.
+
+-- Additionally, if you have Replication metrics or S3 Replication Time Control (S3 RTC) enabled for your replication rule, you can review the number of failed operations per minute on the Amazon S3 console and Amazon CloudWatch console with the Operations Failed Replication metric. For more information, refer to S3 Batch Operations completion reports and monitoring progress with S3 Replication metrics.
+
+
+
